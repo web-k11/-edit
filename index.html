@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歌單排序工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #6b8caf 0%, #8bb4d9 100%);
+            color: #f0f4f8;
+            padding: 18px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        
+        .input-section {
+            display: flex;
+            gap: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #dde7f0 0%, #c8d8e8 100%);
+            min-height: 320px;
+        }
+        
+        .input-group {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f8 100%);
+            padding: 15px;
+            border-right: 1px solid #c8d8e8;
+        }
+        
+        .input-group:first-child {
+            flex: 0.75;
+        }
+        
+        .input-group:last-child {
+            flex: 1;
+        }
+        
+        .input-group:last-child {
+            border-right: none;
+        }
+        
+        .input-group h3 {
+            color: #4a5a6b;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+            border-bottom: 1px solid #c8d8e8;
+            padding-bottom: 6px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 280px;
+            border: 1px solid #b8c8d8;
+            border-radius: 4px;
+            padding: 5px 6px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            resize: none;
+            transition: border-color 0.3s;
+            background: linear-gradient(135deg, #f8fafb 0%, #f0f4f8 100%);
+            overflow-y: auto;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #8bb4d9;
+        }
+        
+        .rules-container {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: linear-gradient(135deg, #e8f0f8 0%, #dde7f0 100%);
+            border-radius: 6px;
+            border: 1px solid #c8d8e8;
+        }
+        
+        .rule-item input {
+            width: 55px;
+            padding: 5px 6px;
+            border: 1px solid #b8c8d8;
+            border-radius: 4px;
+            font-size: 12px;
+            background: linear-gradient(135deg, #f8fafb 0%, #f0f4f8 100%);
+        }
+        
+        .rule-item input:focus {
+            outline: none;
+            border-color: #8bb4d9;
+        }
+        
+        .add-rule-btn, .remove-rule-btn {
+            background: linear-gradient(135deg, #8bb4d9 0%, #6b8caf 100%);
+            color: #f0f4f8;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .remove-rule-btn {
+            background: linear-gradient(135deg, #a8c4e0 0%, #8bb4d9 100%);
+        }
+        
+        .add-rule-btn:hover {
+            background: linear-gradient(135deg, #6b8caf 0%, #5a7a9a 100%);
+            transform: translateY(-1px);
+        }
+        
+        .remove-rule-btn:hover {
+            background: linear-gradient(135deg, #8bb4d9 0%, #7aa3c6 100%);
+            transform: translateY(-1px);
+        }
+        
+        .rule-buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+        
+        .rule-action-btn {
+            background: linear-gradient(135deg, #8bb4d9 0%, #6b8caf 100%);
+            color: #f0f4f8;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 80px;
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+        
+        .rule-action-btn:hover {
+            background: linear-gradient(135deg, #6b8caf 0%, #5a7a9a 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(107, 140, 175, 0.3);
+        }
+        
+        .rule-action-btn.copy {
+            background: linear-gradient(135deg, #a8c4e0 0%, #8bb4d9 100%);
+        }
+        
+        .rule-action-btn.copy:hover {
+            background: linear-gradient(135deg, #8bb4d9 0%, #7aa3c6 100%);
+        }
+        .result-section {
+            padding: 15px;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f8 100%);
+        }
+        
+        .result-section h3 {
+            color: #4a5a6b;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+            border-bottom: 1px solid #c8d8e8;
+            padding-bottom: 6px;
+        }
+        
+        .result-area {
+            background: linear-gradient(135deg, #f8fafb 0%, #f0f4f8 100%);
+            border: 1px solid #b8c8d8;
+            border-radius: 4px;
+            padding: 5px 6px;
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: #4a5a6b;
+            overflow-y: auto;
+        }
+        
+        .width-info {
+            background: linear-gradient(135deg, #c8d8e8 0%, #b8c8d8 100%);
+            padding: 12px 20px;
+            border-top: 1px solid #b8c8d8;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #5a6b7a;
+        }
+        
+        .width-info h4 {
+            color: #4a5a6b;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .input-group:last-child {
+                border-bottom: none;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>歌單排序工具</h1>
+            <p>智能排版，美觀呈現</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <h3>原始資料輸入</h3>
+                <textarea id="rawData" placeholder="請輸入格式：人名 數量&#10;例如：&#10;張三 150&#10;李四 25&#10;王五 8"></textarea>
+            </div>
+            
+            <div class="input-group">
+                <h3>排版規則設定</h3>
+                <div class="rules-container" id="rulesContainer">
+                    <div class="rule-item">
+                        <input type="number" placeholder="最小歌曲數" value="100">
+                        <span>+歌曲：每列最多</span>
+                        <input type="number" placeholder="組數" value="4">
+                        <span>組</span>
+                        <button class="remove-rule-btn" onclick="removeRule(this)">×</button>
+                    </div>
+                    <div class="rule-item">
+                        <input type="number" placeholder="最小歌曲數" value="10">
+                        <span>-</span>
+                        <input type="number" placeholder="最大歌曲數" value="99">
+                        <span>歌曲：每列最多</span>
+                        <input type="number" placeholder="組數" value="5">
+                        <span>組</span>
+                        <button class="remove-rule-btn" onclick="removeRule(this)">×</button>
+                    </div>
+                </div>
+                <button class="add-rule-btn" onclick="addRule()">+</button>
+                <div class="rule-buttons">
+                    <button class="rule-action-btn" onclick="sortPlaylist()">開始排序</button>
+                    <button class="rule-action-btn copy" onclick="copyResult()">複製結果</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-section">
+            <h3>結果預覽</h3>
+            <div class="result-area" id="result">點擊「開始排序」來查看結果...</div>
+        </div>
+        
+        <div class="width-info">
+            <h4>字元寬度計算規則</h4>
+            <div>全形中文字：2.0 單位/字 | 半形符號：0.5 單位/符號 | Emoji：2.2 單位/符號</div>
+            <div>英文大寫字母：1.2 單位/字母 | 英文小寫字母：1.1 單位/字母 | 數字：1.1 單位/數字 | 全形空格：2.0 單位/空格</div>
+        </div>
+    </div>
+
+    <script>
+        function calculateWidth(text) {
+            let width = 0;
+            for (let char of text) {
+                if (/[\u4e00-\u9fff]/.test(char)) { // 中文字
+                    width += 2.0;
+                } else if (/[A-Z]/.test(char)) { // 英文大寫
+                    width += 1.2;
+                } else if (/[a-z]/.test(char)) { // 英文小寫
+                    width += 1.1;
+                } else if (/[0-9]/.test(char)) { // 數字
+                    width += 1.1;
+                } else if (/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/u.test(char)) { // Emoji
+                    width += 2.2;
+                } else if (char === '　') { // 全形空格
+                    width += 2.0;
+                } else { // 半形符號
+                    width += 0.5;
+                }
+            }
+            return width;
+        }
+
+        function getRules() {
+            const rules = [];
+            const ruleItems = document.querySelectorAll('.rule-item');
+            
+            ruleItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const spans = item.querySelectorAll('span');
+                
+                // 檢查是否為單一範圍規則（包含"+"符號）
+                const hasPlus = spans[0] && spans[0].textContent.includes('+');
+                
+                if (hasPlus && inputs.length === 2) { // 單一範圍規則 (例如: 100+歌曲)
+                    rules.push({
+                        min: parseInt(inputs[0].value) || 0,
+                        max: Infinity,
+                        maxPerRow: parseInt(inputs[1].value) || 4
+                    });
+                } else if (!hasPlus && inputs.length === 3) { // 範圍規則 (例如: 10-99歌曲)
+                    rules.push({
+                        min: parseInt(inputs[0].value) || 0,
+                        max: parseInt(inputs[1].value) || 99,
+                        maxPerRow: parseInt(inputs[2].value) || 5
+                    });
+                }
+            });
+            
+            return rules.sort((a, b) => b.min - a.min);
+        }
+
+        function getMaxPerRow(count) {
+            const rules = getRules();
+            // 按最小值從大到小排序，確保優先匹配較大的範圍
+            rules.sort((a, b) => b.min - a.min);
+            
+            for (let rule of rules) {
+                if (count >= rule.min && count <= rule.max) {
+                    return rule.maxPerRow;
+                }
+            }
+            return 4; // 預設值
+        }
+
+        function sortPlaylist() {
+            const rawData = document.getElementById('rawData').value.trim();
+            if (!rawData) {
+                alert('請輸入原始資料！');
+                return;
+            }
+
+            const lines = rawData.split('\n').filter(line => line.trim());
+            const items = [];
+
+            for (let line of lines) {
+                const parts = line.trim().split(/\s+/);
+                if (parts.length >= 2) {
+                    const count = parseInt(parts[parts.length - 1]);
+                    const name = parts.slice(0, -1).join(' ');
+                    if (!isNaN(count)) {
+                        items.push({ name, count });
+                    }
+                }
+            }
+
+            // 按數量從大到小排序，相同數量的按寬度排序
+            items.sort((a, b) => {
+                if (a.count !== b.count) {
+                    return b.count - a.count; // 數量大的在前
+                }
+                // 相同數量時按寬度排序
+                const widthA = calculateWidth(`${a.name}:${a.count}`);
+                const widthB = calculateWidth(`${b.name}:${b.count}`);
+                return widthA - widthB;
+            });
+
+            let result = '';
+            const maxWidth = 46; // 恢復原本的寬度限制
+            let currentRow = [];
+            let currentWidth = 0;
+            let currentMaxPerRow = 0;
+
+            // 在開始前顯示規則資訊（用於測試）
+            const rules = getRules();
+            console.log('當前規則:', rules);
+
+            items.forEach((item, index) => {
+                const itemText = `${item.name}:${item.count}`;
+                const itemWidth = calculateWidth(itemText);
+                const spaceWidth = currentRow.length > 0 ? 2.0 : 0; // 全形空格
+                const maxPerRow = getMaxPerRow(item.count);
+
+                // 顯示每個項目的規則匹配結果（用於測試）
+                console.log(`項目: ${itemText}, 數量: ${item.count}, 匹配規則每行最多: ${maxPerRow}組`);
+
+                // 如果當前行為空，設定新的每行最大組數
+                if (currentRow.length === 0) {
+                    currentMaxPerRow = maxPerRow;
+                }
+
+                // 檢查是否需要換行的條件
+                const reachMaxCount = currentRow.length >= currentMaxPerRow; // 達到每行最大組數
+                const exceedWidth = currentRow.length > 0 && currentWidth + spaceWidth + itemWidth > maxWidth; // 超過最大寬度
+                const ruleChanged = currentRow.length > 0 && maxPerRow !== currentMaxPerRow; // 規則改變
+
+                const needNewLine = reachMaxCount || exceedWidth || ruleChanged;
+
+                if (needNewLine) {
+                    // 輸出當前行
+                    result += currentRow.join('　') + '\n';
+                    console.log(`換行原因 - 達到最大組數: ${reachMaxCount}, 超過寬度: ${exceedWidth}, 規則改變: ${ruleChanged}`);
+                    currentRow = [itemText];
+                    currentWidth = itemWidth;
+                    currentMaxPerRow = maxPerRow;
+                } else {
+                    currentRow.push(itemText);
+                    currentWidth += spaceWidth + itemWidth;
+                }
+            });
+
+            // 輸出最後一行
+            if (currentRow.length > 0) {
+                result += currentRow.join('　') + '\n';
+            }
+
+            lastResult = result;
+            document.getElementById('result').textContent = result;
+        }
+
+        let lastResult = '';
+
+        function copyResult() {
+            if (!lastResult) {
+                alert('請先進行排序！');
+                return;
+            }
+
+            navigator.clipboard.writeText(lastResult).then(() => {
+                alert('結果已複製到剪貼簿！');
+            }).catch(() => {
+                // 備用複製方法
+                const textArea = document.createElement('textarea');
+                textArea.value = lastResult;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('結果已複製到剪貼簿！');
+            });
+        }
+
+        function addRule() {
+            const container = document.getElementById('rulesContainer');
+            const newRule = document.createElement('div');
+            newRule.className = 'rule-item';
+            newRule.innerHTML = `
+                <input type="number" placeholder="最小歌曲數" value="1">
+                <span>-</span>
+                <input type="number" placeholder="最大歌曲數" value="9">
+                <span>歌曲：每列最多</span>
+                <input type="number" placeholder="組數" value="6">
+                <span>組</span>
+                <button class="remove-rule-btn" onclick="removeRule(this)">×</button>
+            `;
+            container.appendChild(newRule);
+        }
+
+        function removeRule(button) {
+            const ruleItems = document.querySelectorAll('.rule-item');
+            if (ruleItems.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('至少需要保留一個規則！');
+            }
+        }
+    </script>
+</body>
+</html>
